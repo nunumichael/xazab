@@ -41,8 +41,13 @@ BITCOIN_INCLUDES=-I$(builddir) $(BDB_CPPFLAGS) $(BOOST_CPPFLAGS) $(LEVELDB_CPPFL
 
 BITCOIN_INCLUDES += -I$(srcdir)/secp256k1/include
 BITCOIN_INCLUDES += $(UNIVALUE_CFLAGS)
+#-L$(srcdir)/crypto/randomx/build
 
-BLS_LIBS=-lchiabls -lgmp
+if TARGET_WINDOWS
+BLS_LIBS=-lchiabls -lgmp -L$(srcdir)/crypto/randomx/buildwin64 -lrandomx
+else
+BLS_LIBS=-lchiabls -lgmp -L$(srcdir)/crypto/randomx/build -lrandomx
+endif
 
 LIBBITCOIN_SERVER=libxazab_server.a
 LIBBITCOIN_COMMON=libxazab_common.a
@@ -148,6 +153,7 @@ BITCOIN_CORE_H = \
   evo/mnauth.h \
   evo/providertx.h \
   evo/simplifiedmns.h \
+  randomx_bbp.h \
   evo/specialtx.h \
   privatesend/privatesend.h \
   privatesend/privatesend-client.h \
@@ -332,6 +338,7 @@ libxazab_server_a_SOURCES = \
   pow.cpp \
   privatesend/privatesend.cpp \
   privatesend/privatesend-server.cpp \
+  randomx_bbp.cpp \
   rest.cpp \
   rpc/blockchain.cpp \
   rpc/masternode.cpp \
@@ -461,6 +468,7 @@ crypto_libxazab_crypto_shani_a_CPPFLAGS = $(AM_CPPFLAGS)
 crypto_libxazab_crypto_shani_a_CXXFLAGS += $(SHANI_CXXFLAGS)
 crypto_libxazab_crypto_shani_a_CPPFLAGS += -DENABLE_SHANI
 crypto_libxazab_crypto_shani_a_SOURCES = crypto/sha256_shani.cpp
+#  crypto/randomx/src/randomx.h
 
 # consensus: shared between all executables that validate any consensus rules.
 libxazab_consensus_a_CPPFLAGS = $(AM_CPPFLAGS) $(BITCOIN_INCLUDES)
@@ -487,6 +495,8 @@ libxazab_consensus_a_SOURCES = \
   script/xazabconsensus.cpp \
   script/interpreter.cpp \
   script/interpreter.h \
+  randomx_bbp.h \
+  randomx_bbp.cpp \
   script/script.cpp \
   script/script.h \
   script/script_error.cpp \

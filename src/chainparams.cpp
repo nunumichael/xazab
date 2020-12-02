@@ -301,6 +301,8 @@ public:
         consensus.BIP66Height = 0;     // 00000ffd590b1485b3caadc19b22e6379c733355108f107a430458cdf3407ab6
         consensus.DIP0001Height = 10;  // 00000056cfbdf18e4890e10a6850943f11e44da5dcaf9b82d9320b99f2fffde3
         consensus.DIP0003Height = 20;  // 000003e02c207c290aba728ffe961b7797e32efc61e985aca036b48ac50480cb
+        consensus.CPU_HEIGHT =100000;
+	consensus.RANDOMX_HEIGHT = 100000;
         consensus.DIP0003EnforcementHeight = 30;
         consensus.DIP0003EnforcementHash = uint256S("0000047b2bb97f484c45bf6e18e64fcc5fae8b4043893e01f48a43500ba10617");
         consensus.powLimit = uint256S("00000fffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"); // ~uint256(0) >> 20
@@ -473,20 +475,22 @@ public:
         consensus.nGovernanceFilterElements = 500;
         consensus.nMasternodeMinimumConfirmations = 1;
         consensus.BIP34Height = 76;
-        consensus.BIP34Hash = uint256S("0x000008ebb1db2598e897d17275285767717c6acfeac4c73def49fbea1ddcbcb6");
-        consensus.BIP65Height = 2431; // 0000039cf01242c7f921dcb4806a5994bc003b48c1973ae0c89b67809c2bb2ab
-        consensus.BIP66Height = 2075; // 0000002acdd29a14583540cb72e1c5cc83783560e38fa7081495d474fe1671f7
-        consensus.DIP0001Height = 5500;
-        consensus.DIP0003Height = 7000;
-        consensus.DIP0003EnforcementHeight = 7300;
-        consensus.DIP0003EnforcementHash = uint256S("00000055ebc0e974ba3a3fb785c5ad4365a39637d4df168169ee80d313612f8f");
+        consensus.BIP34Hash = uint256S("");
+        consensus.BIP65Height = 88; // 0000039cf01242c7f921dcb4806a5994bc003b48c1973ae0c89b67809c2bb2ab
+        consensus.BIP66Height = 98; // 0000002acdd29a14583540cb72e1c5cc83783560e38fa7081495d474fe1671f7
+        consensus.DIP0001Height = 100;
+        consensus.DIP0003Height = 150;
+        consensus.CPU_HEIGHT =200;
+	consensus.RANDOMX_HEIGHT = 200;
+        consensus.DIP0003EnforcementHeight = 160;
+        consensus.DIP0003EnforcementHash = uint256S("");
         consensus.powLimit = uint256S("00000fffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"); // ~uint256(0) >> 20
         consensus.nPowTargetTimespan = 24 * 60 * 60; // Xazab: 1 day
         consensus.nPowTargetSpacing = 2.5 * 60; // Xazab: 2.5 minutes
         consensus.fPowAllowMinDifficultyBlocks = true;
         consensus.fPowNoRetargeting = false;
-        consensus.nPowKGWHeight = 4002; // nPowKGWHeight >= nPowDGWHeight means "no KGW"
-        consensus.nPowDGWHeight = 4002; // TODO: make sure to drop all spork6 related code on next testnet reset
+        consensus.nPowKGWHeight = 402; // nPowKGWHeight >= nPowDGWHeight means "no KGW"
+        consensus.nPowDGWHeight = 402; // TODO: make sure to drop all spork6 related code on next testnet reset
         consensus.nRuleChangeActivationThreshold = 1512; // 75% for testchains
         consensus.nMinerConfirmationWindow = 2016; // nPowTargetTimespan / nPowTargetSpacing
         consensus.vDeployments[Consensus::DEPLOYMENT_TESTDUMMY].bit = 28;
@@ -536,16 +540,16 @@ public:
         consensus.vDeployments[Consensus::DEPLOYMENT_REALLOC].nFalloffCoeff = 5; // this corresponds to 10 periods
 
         // The best chain should have at least this much work.
-        consensus.nMinimumChainWork = uint256S("0x000000000000000000000000000000000000000000000000022b7d3bf9070c88"); // 387900
+        consensus.nMinimumChainWork = uint256S("0x"); // 387900
 
         // By default assume that the signatures in ancestors of this block are valid.
-        consensus.defaultAssumeValid = uint256S("0x0000019906db5219bdc6c9a0a94facf80356bcf1afebc0d356485711a294385f"); // 387900
+        consensus.defaultAssumeValid = uint256S("0x"); // 387900
 
-        pchMessageStart[0] = 0xce;
-        pchMessageStart[1] = 0xe2;
-        pchMessageStart[2] = 0xca;
+        pchMessageStart[0] = 0x44;
+        pchMessageStart[1] = 0x46;
+        pchMessageStart[2] = 0x55;
         pchMessageStart[3] = 0xff;
-        nDefaultPort = 19999;
+        nDefaultPort = 29999;
         nPruneAfterHeight = 1000;
 
         genesis = CreateGenesisBlock(1390666206UL, 3861367235UL, 0x1e0ffff0, 1, 50 * COIN);
@@ -558,7 +562,7 @@ public:
 
         vSeeds.clear();
         // nodes with support for servicebits filtering should be at the top
-        vSeeds.emplace_back("testnet-seed.xazabdot.io"); // Just a static list of stable node(s), only supports x9
+        vSeeds.emplace_back("testnet-seed.xazab.xyz"); // Just a static list of stable node(s), only supports x9
 
         // Testnet Xazab addresses start with 'y'
         base58Prefixes[PUBKEY_ADDRESS] = std::vector<unsigned char>(1,140);
@@ -601,19 +605,15 @@ public:
 
         checkpointData = {
             {
-                {261, uint256S("0x00000c26026d0815a7e2ce4fa270775f61403c040647ff2c3091f99e894a4618")},
-                {1999, uint256S("0x00000052e538d27fa53693efe6fb6892a0c1d26c0235f599171c48a3cce553b1")},
-                {2999, uint256S("0x0000024bc3f4f4cb30d29827c13d921ad77d2c6072e586c7f60d83c2722cdcc5")},
-                {96090, uint256S("0x00000000033df4b94d17ab43e999caaf6c4735095cc77703685da81254d09bba")},
-                {200000, uint256S("0x000000001015eb5ef86a8fe2b3074d947bc972c5befe32b28dd5ce915dc0d029")},
+                {0, uint256S("0x00000bafbc94add76cb75e2ec92894837288a481e5c005f6563d91623bf8bc2c")},
             }
         };
 
         chainTxData = ChainTxData{
-            1601053246, // * UNIX timestamp of last known number of transactions (Block 387900)
-            3326586,    // * total number of transactions between genesis and that timestamp
+            1390666206, // * UNIX timestamp of last known number of transactions (Block 387900)
+            0,    // * total number of transactions between genesis and that timestamp
                         //   (the tx=... number in the SetBestChain debug.log lines)
-            0.02        // * estimated number of transactions per second after that timestamp
+            0        // * estimated number of transactions per second after that timestamp
         };
 
     }
@@ -648,13 +648,15 @@ public:
         consensus.DIP0003Height = 2; // DIP0003 activated immediately on devnet
         consensus.DIP0003EnforcementHeight = 2; // DIP0003 activated immediately on devnet
         consensus.DIP0003EnforcementHash = uint256();
+        consensus.CPU_HEIGHT =200;
+        consensus.RANDOMX_HEIGHT = 200;
         consensus.powLimit = uint256S("7fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"); // ~uint256(0) >> 1
-        consensus.nPowTargetTimespan = 24 * 60 * 60; // Xazab: 1 day
-        consensus.nPowTargetSpacing = 2.5 * 60; // Xazab: 2.5 minutes
+        consensus.nPowTargetTimespan = 60; // Xazab: 1 minutes
+        consensus.nPowTargetSpacing =  60; // Xazab: 1 minutes
         consensus.fPowAllowMinDifficultyBlocks = true;
         consensus.fPowNoRetargeting = false;
-        consensus.nPowKGWHeight = 4001; // nPowKGWHeight >= nPowDGWHeight means "no KGW"
-        consensus.nPowDGWHeight = 4001;
+        consensus.nPowKGWHeight = 40; // nPowKGWHeight >= nPowDGWHeight means "no KGW"
+        consensus.nPowDGWHeight = 40;
         consensus.nRuleChangeActivationThreshold = 1512; // 75% for testchains
         consensus.nMinerConfirmationWindow = 2016; // nPowTargetTimespan / nPowTargetSpacing
         consensus.vDeployments[Consensus::DEPLOYMENT_TESTDUMMY].bit = 28;
@@ -709,11 +711,11 @@ public:
         // By default assume that the signatures in ancestors of this block are valid.
         consensus.defaultAssumeValid = uint256S("0x000000000000000000000000000000000000000000000000000000000000000");
 
-        pchMessageStart[0] = 0xe2;
-        pchMessageStart[1] = 0xca;
-        pchMessageStart[2] = 0xff;
+        pchMessageStart[0] = 0x49;
+        pchMessageStart[1] = 0x59;
+        pchMessageStart[2] = 0x64;
         pchMessageStart[3] = 0xce;
-        nDefaultPort = 19799;
+        nDefaultPort = 29799;
         nPruneAfterHeight = 1000;
 
         genesis = CreateGenesisBlock(1417713337, 1096447, 0x207fffff, 1, 50 * COIN);
@@ -808,19 +810,21 @@ public:
         consensus.nMasternodeMinimumConfirmations = 1;
         consensus.BIP34Height = 100000000; // BIP34 has not activated on regtest (far in the future so block v1 are not rejected in tests)
         consensus.BIP34Hash = uint256();
-        consensus.BIP65Height = 1351; // BIP65 activated on regtest (Used in rpc activation tests)
-        consensus.BIP66Height = 1251; // BIP66 activated on regtest (Used in rpc activation tests)
-        consensus.DIP0001Height = 2000;
-        consensus.DIP0003Height = 432;
-        consensus.DIP0003EnforcementHeight = 500;
+        consensus.BIP65Height = 135; // BIP65 activated on regtest (Used in rpc activation tests)
+        consensus.BIP66Height = 125; // BIP66 activated on regtest (Used in rpc activation tests)
+        consensus.DIP0001Height = 200;
+        consensus.DIP0003Height = 43;
+        consensus.DIP0003EnforcementHeight = 50;
         consensus.DIP0003EnforcementHash = uint256();
+        consensus.CPU_HEIGHT =200;
+        consensus.RANDOMX_HEIGHT = 200;
         consensus.powLimit = uint256S("7fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"); // ~uint256(0) >> 1
-        consensus.nPowTargetTimespan = 24 * 60 * 60; // Xazab: 1 day
-        consensus.nPowTargetSpacing = 2.5 * 60; // Xazab: 2.5 minutes
+        consensus.nPowTargetTimespan = 60; // Xazab: 1 minutes
+        consensus.nPowTargetSpacing =  60; // Xazab: 1 minutes
         consensus.fPowAllowMinDifficultyBlocks = true;
         consensus.fPowNoRetargeting = true;
-        consensus.nPowKGWHeight = 15200; // same as mainnet
-        consensus.nPowDGWHeight = 34140; // same as mainnet
+        consensus.nPowKGWHeight = 15; // same as mainnet
+        consensus.nPowDGWHeight = 34; // same as mainnet
         consensus.nRuleChangeActivationThreshold = 108; // 75% for testchains
         consensus.nMinerConfirmationWindow = 144; // Faster than normal for regtest (144 instead of 2016)
         consensus.vDeployments[Consensus::DEPLOYMENT_TESTDUMMY].bit = 28;
@@ -855,11 +859,11 @@ public:
         // By default assume that the signatures in ancestors of this block are valid.
         consensus.defaultAssumeValid = uint256S("0x00");
 
-        pchMessageStart[0] = 0xfc;
-        pchMessageStart[1] = 0xc1;
-        pchMessageStart[2] = 0xb7;
+        pchMessageStart[0] = 0x64;
+        pchMessageStart[1] = 0x44;
+        pchMessageStart[2] = 0x65;
         pchMessageStart[3] = 0xdc;
-        nDefaultPort = 19899;
+        nDefaultPort = 29899;
         nPruneAfterHeight = 1000;
 
         genesis = CreateGenesisBlock(1417713337, 1096447, 0x207fffff, 1, 50 * COIN);

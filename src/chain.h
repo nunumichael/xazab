@@ -212,7 +212,8 @@ public:
     uint32_t nTime;
     uint32_t nBits;
     uint32_t nNonce;
-
+    uint256 RandomXKey;
+    std::string RandomXData;
     //! (memory only) Sequential id assigned to distinguish order in which blocks are received.
     int32_t nSequenceId;
 
@@ -234,12 +235,14 @@ public:
         nStatus = 0;
         nSequenceId = 0;
         nTimeMax = 0;
+	RandomXKey     = uint256();
 
         nVersion       = 0;
         hashMerkleRoot = uint256();
         nTime          = 0;
         nBits          = 0;
         nNonce         = 0;
+	RandomXData    = std::string();
     }
 
     CBlockIndex()
@@ -256,6 +259,8 @@ public:
         nTime          = block.nTime;
         nBits          = block.nBits;
         nNonce         = block.nNonce;
+	RandomXKey     = block.RandomXKey;
+	RandomXData    = block.RandomXData;
     }
 
     CDiskBlockPos GetBlockPos() const {
@@ -286,6 +291,8 @@ public:
         block.nTime          = nTime;
         block.nBits          = nBits;
         block.nNonce         = nNonce;
+	block.RandomXKey     = RandomXKey;
+	block.RandomXData    = RandomXData;
         return block;
     }
 
@@ -410,6 +417,8 @@ public:
         READWRITE(nTime);
         READWRITE(nBits);
         READWRITE(nNonce);
+	READWRITE(RandomXKey);
+	READWRITE(LIMITED_STRING(RandomXData, 2000));
     }
 
     uint256 GetBlockHash() const
