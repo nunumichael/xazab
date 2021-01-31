@@ -2,9 +2,9 @@
 # Copyright (c) 2018-2020 The Dash Core developers
 # Distributed under the MIT software license, see the accompanying
 # file COPYING or http://www.opensource.org/licenses/mit-license.php.
-"""Tests around dash governance objects."""
+"""Tests around xazab governance objects."""
 
-from test_framework.test_framework import DashTestFramework
+from test_framework.test_framework import XazabTestFramework
 from test_framework.util import *
 from test_framework.messages import *
 
@@ -14,15 +14,14 @@ def validate_object(prepared, rpc_prepared):
     assert_equal(prepared["collateralHash"], rpc_prepared["collateralHash"])
     assert_equal(prepared["createdAt"], rpc_prepared["createdAt"])
     assert_equal(prepared["revision"], rpc_prepared["revision"])
-    assert_equal(prepared["type"], rpc_prepared["type"])
     assert_equal(prepared["hex"], rpc_prepared["data"]["hex"])
     del rpc_prepared["data"]["hex"]
     assert_equal(prepared["data"], rpc_prepared["data"])
 
 
-class DashGovernanceTest (DashTestFramework):
+class XazabGovernanceTest (XazabTestFramework):
     def set_test_params(self):
-        self.set_dash_test_params(2, 1)
+        self.set_xazab_test_params(2, 1)
 
     def prepare_object(self, object_type, parent_hash, creation_time, revision, name, amount):
         proposal_rev = revision
@@ -34,7 +33,7 @@ class DashGovernanceTest (DashTestFramework):
             "end_epoch": proposal_time + 24 * 60 * 60,
             "payment_amount": amount,
             "payment_address": self.nodes[0].getnewaddress(),
-            "url": "https://dash.org"
+            "url": "https://xazab.org"
         }
         proposal_hex = ''.join(format(x, '02x') for x in json.dumps(proposal_template).encode())
         collateral_hash = self.nodes[0].gobject("prepare", parent_hash, proposal_rev, proposal_time, proposal_hex)
@@ -43,7 +42,6 @@ class DashGovernanceTest (DashTestFramework):
             "collateralHash": collateral_hash,
             "createdAt": proposal_time,
             "revision": proposal_rev,
-            "type": object_type,
             "hex": proposal_hex,
             "data": proposal_template,
         }
@@ -99,4 +97,4 @@ class DashGovernanceTest (DashTestFramework):
 
 
 if __name__ == '__main__':
-    DashGovernanceTest().main()
+    XazabGovernanceTest().main()

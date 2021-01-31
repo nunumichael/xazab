@@ -1,4 +1,4 @@
-// Copyright (c) 2018-2019 The Xazab Core developers
+// Copyright (c) 2018-2019 The Dash Core developers
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -7,21 +7,18 @@
 #include <llmq/quorums_commitment.h>
 #include <llmq/quorums_debug.h>
 #include <llmq/quorums_dkgsessionmgr.h>
-#include <llmq/quorums_utils.h>
 
 #include <evo/specialtx.h>
 
 #include <masternode/activemasternode.h>
 #include <masternode/masternode-meta.h>
 #include <chainparams.h>
-#include <init.h>
-#include <net.h>
 #include <netmessagemaker.h>
-#include <spork.h>
 #include <univalue.h>
 #include <validation.h>
 
 #include <cxxtimer.hpp>
+#include <memory>
 
 namespace llmq
 {
@@ -54,8 +51,11 @@ static double GetSimulatedErrorRate(const std::string& type)
     return 0;
 }
 
-static bool ShouldSimulateError(const std::string& type)
+bool CDKGSession::ShouldSimulateError(const std::string& type)
 {
+    if (params.type != Consensus::LLMQType::LLMQ_TEST) {
+        return false;
+    }
     double rate = GetSimulatedErrorRate(type);
     return GetRandBool(rate);
 }
@@ -84,7 +84,7 @@ CDKGPrematureCommitment::CDKGPrematureCommitment(const Consensus::LLMQParams& pa
 CDKGMember::CDKGMember(CDeterministicMNCPtr _dmn, size_t _idx) :
     dmn(_dmn),
     idx(_idx),
-    id(CBLSId::FromHash(_dmn->proTxHash))
+    id(_dmn->proTxHash)
 {
 
 }
@@ -99,7 +99,7 @@ bool CDKGSession::Init(const CBlockIndex* _pindexQuorum, const std::vector<CDete
     receivedSkContributions.resize(members.size());
 
     for (size_t i = 0; i < mns.size(); i++) {
-        members[i] = std::unique_ptr<CDKGMember>(new CDKGMember(mns[i], i));
+        members[i] = std::make_unique<CDKGMember>(mns[i], i);
         membersMap.emplace(members[i]->dmn->proTxHash, i);
         memberIds[i] = members[i]->id;
     }
@@ -1251,9 +1251,7 @@ std::vector<CFinalCommitment> CDKGSession::FinalizeCommitments()
         aggSigs.reserve(cvec.size());
         aggPks.reserve(cvec.size());
 
-        for (size_t i = 0; i < cvec.size(); i++) {
-            auto& qc = cvec[i];
-
+        for (const auto& qc : cvec) {
             if (qc.quorumPublicKey != first.quorumPublicKey || qc.quorumVvecHash != first.quorumVvecHash) {
                 logger.Batch("quorumPublicKey or quorumVvecHash does not match, skipping");
                 continue;
