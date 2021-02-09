@@ -408,7 +408,7 @@ libxazab_wallet_a_SOURCES = \
   $(BITCOIN_CORE_H)
 
 # crypto primitives library
-crypto_libxazab_crypto_base_a_CPPFLAGS = $(AM_CPPFLAGS) $(PIC_FLAGS)
+crypto_libxazab_crypto_base_a_CPPFLAGS = $(AM_CPPFLAGS) $(PIC_FLAGS) $(SSL_CFLAGS)
 crypto_libxazab_crypto_base_a_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS) $(PIC_FLAGS)
 crypto_libxazab_crypto_base_a_SOURCES = \
   crypto/aes.cpp \
@@ -425,6 +425,8 @@ crypto_libxazab_crypto_base_a_SOURCES = \
   crypto/poly1305.h \
   crypto/poly1305.cpp \
   crypto/ripemd160.cpp \
+  crypto/scrypt.cpp \
+  crypto/scrypt.h \
   crypto/aes_helper.c \
   crypto/ripemd160.h \
   crypto/sha1.cpp \
