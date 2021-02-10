@@ -61,6 +61,7 @@ static const bool DEFAULT_LOGIPS         = false;
 static const bool DEFAULT_LOGTIMESTAMPS  = true;
 static const bool DEFAULT_LOGTHREADNAMES = false;
 extern const char * const DEFAULT_DEBUGLOGFILE;
+extern int miningAlgo;
 
 /** Signals for translation. */
 class CTranslationInterface

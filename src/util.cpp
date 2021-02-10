@@ -114,6 +114,7 @@ bool fLogTimeMicros = DEFAULT_LOGTIMEMICROS;
 bool fLogThreadNames = DEFAULT_LOGTHREADNAMES;
 bool fLogIPs = DEFAULT_LOGIPS;
 std::atomic<bool> fReopenDebugLog(false);
+int miningAlgo = 0;
 CTranslationInterface translationInterface;
 
 /** Log categories bitfield. */
