@@ -126,6 +126,16 @@ arith_uint256 GetBlockProof(const CBlockIndex& block)
     // Compute the geometric mean of the block targets for each individual algorithm.
     arith_uint256 bnAvgTarget(1);
 
+   int CURRENT_ALGOS;
+    if (block.nHeight >= 100000)
+    {
+    	CURRENT_ALGOS = NUM_ALGOS_NEW;
+    }
+    else
+    {
+        CURRENT_ALGOS = NUM_ALGOS;
+    }
+
     for (int i = 0; i < NUM_ALGOS; i++)
     {
         unsigned int nBits = GetNextWorkRequired(block.pprev, &header, params, i);
