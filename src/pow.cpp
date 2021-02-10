@@ -83,11 +83,12 @@ unsigned int static DarkGravityWave(const CBlockIndex* pindexLast, const Consens
     /* current difficulty formula, xazab - DarkGravity v3, written by Evan Duffield - evan@xazab.xyz */
     const arith_uint256 bnPowLimit = UintToArith256(params.powLimit);
     int64_t nPastBlocks = 24;
+unsigned int GetNextWorkRequired(const CBlockIndex* pindexLast, const CBlockHeader *pblock, const Consensus::Params& params, int algo) {
+    unsigned int npowWorkLimit = UintToArith256(params.powLimit).GetCompact();
 
-    // make sure we have at least (nPastBlocks + 1) blocks, otherwise just return powLimit
-    if (!pindexLast || pindexLast->nHeight < nPastBlocks) {
-        return bnPowLimit.GetCompact();
-    }
+    // Genesis block
+    if (pindexLast == nullptr)
+        return npowWorkLimit;
 
     const CBlockIndex *pindex = pindexLast;
     arith_uint256 bnPastTargetAvg;
@@ -101,29 +102,63 @@ unsigned int static DarkGravityWave(const CBlockIndex* pindexLast, const Consens
             bnPastTargetAvg = (bnPastTargetAvg * nCountBlocks + bnTarget) / (nCountBlocks + 1);
         }
 
-        if(nCountBlocks != nPastBlocks) {
-            assert(pindex->pprev); // should never fail
-            pindex = pindex->pprev;
+    if (params.fPowAllowMinDifficultyBlocks)
+    {
+        // Special difficulty rule for testnet:
+        // If the new block's timestamp is more than 6* 1.5 minutes
+        // then allow mining of a min-difficulty block.
+        if (pblock->nTime > pindexLast->nTime + params.nPowTargetSpacing*6)
+            return npowWorkLimit;
+        else
+        {
+            // Return the last non-special-min-difficulty-rules-block
+            const CBlockIndex* pindex = pindexLast;
+            while (pindex->pprev && pindex->nHeight % params.DifficultyAdjustmentInterval() != 0 && pindex->nBits == npowWorkLimit)
+                pindex = pindex->pprev;
+            return pindex->nBits;
         }
     }
 
-    arith_uint256 bnNew(bnPastTargetAvg);
+    // find first block in averaging interval
+    // Go back by what we want to be nAveragingInterval blocks per algo
+    const CBlockIndex* pindexFirst = pindexLast;
+    for (int i = 0; pindexFirst && i < NUM_ALGOS * params.nAveragingInterval; i++)
+    {
+        pindexFirst = pindexFirst->pprev;
+    }
 
-    int64_t nActualTimespan = pindexLast->GetBlockTime() - pindex->GetBlockTime();
-    // NOTE: is this accurate? nActualTimespan counts it for (nPastBlocks - 1) blocks only...
-    int64_t nTargetTimespan = nPastBlocks * params.nPowTargetSpacing;
+    const CBlockIndex* pindexPrevAlgo = GetLastBlockIndexForAlgo(pindexLast, params, algo);
+    if (pindexPrevAlgo == nullptr || pindexFirst == nullptr)
+    {
+        return npowWorkLimit;
+    }
 
-    if (nActualTimespan < nTargetTimespan/3)
-        nActualTimespan = nTargetTimespan/3;
-    if (nActualTimespan > nTargetTimespan*3)
-        nActualTimespan = nTargetTimespan*3;
+    // Limit adjustment step
+    // Use medians to prevent time-warp attacks
+    int64_t nActualTimespan = pindexLast-> GetMedianTimePast() - pindexFirst->GetMedianTimePast();
+    nActualTimespan = params.nAveragingTargetTimespan + (nActualTimespan - params.nAveragingTargetTimespan)/4;
 
-    // Retarget
+    if (nActualTimespan < params.nMinActualTimespan)
+        nActualTimespan = params.nMinActualTimespan;
+    if (nActualTimespan > params.nMaxActualTimespan)
+        nActualTimespan = params.nMaxActualTimespan;
+
+    //Global retarget
+    arith_uint256 bnNew;
+    bnNew.SetCompact(pindexPrevAlgo->nBits);
+
     bnNew *= nActualTimespan;
-    bnNew /= nTargetTimespan;
+    bnNew /= params.nAveragingTargetTimespan;
 
-    if (bnNew > bnPowLimit) {
-        bnNew = bnPowLimit;
+    //Per-algo retarget
+    int nAdjustments = pindexPrevAlgo->nHeight + NUM_ALGOS - 1 - pindexLast->nHeight;
+    if (nAdjustments > 0)
+    {
+        for (int i = 0; i < nAdjustments; i++)
+        {
+            bnNew *= 100;
+            bnNew /= (100 + params.nLocalTargetAdjustment);
+        }
     }
 
     return bnNew.GetCompact();
@@ -136,24 +171,14 @@ unsigned int GetNextWorkRequiredBTC(const CBlockIndex* pindexLast, const CBlockH
 
     // Only change once per interval
     if ((pindexLast->nHeight+1) % params.DifficultyAdjustmentInterval() != 0)
+
+    else if (nAdjustments < 0)
     {
-        if (params.fPowAllowMinDifficultyBlocks)
+        for (int i = 0; i < -nAdjustments; i++)
         {
-            // Special difficulty rule for testnet:
-            // If the new block's timestamp is more than 2* 2.5 minutes
-            // then allow mining of a min-difficulty block.
-            if (pblock->GetBlockTime() > pindexLast->GetBlockTime() + params.nPowTargetSpacing*2)
-                return nProofOfWorkLimit;
-            else
-            {
-                // Return the last non-special-min-difficulty-rules-block
-                const CBlockIndex* pindex = pindexLast;
-                while (pindex->pprev && pindex->nHeight % params.DifficultyAdjustmentInterval() != 0 && pindex->nBits == nProofOfWorkLimit)
-                    pindex = pindex->pprev;
-                return pindex->nBits;
-            }
+            bnNew *= (100 + params.nLocalTargetAdjustment);
+            bnNew /= 100;
         }
-        return pindexLast->nBits;
     }
 
     // Go back by what we want to be 1 day worth of blocks
@@ -202,6 +227,12 @@ unsigned int GetNextWorkRequired(const CBlockIndex* pindexLast, const CBlockHead
     }
 
     return DarkGravityWave(pindexLast, params);
+    if (bnNew > UintToArith256(params.powLimit))
+    {
+        bnNew = UintToArith256(params.powLimit);
+    }
+
+    return bnNew.GetCompact();
 }
 
 // for DIFF_BTC only!
@@ -247,4 +278,22 @@ bool CheckProofOfWork(uint256 hash, unsigned int nBits, const Consensus::Params&
         return false;
 
     return true;
+}
+
+const CBlockIndex* GetLastBlockIndexForAlgo(const CBlockIndex* pindex, const Consensus::Params& params, int algo)
+{
+    for (; pindex; pindex = pindex->pprev)
+    {
+        if (pindex->GetAlgo() != algo)
+            continue;
+        // ignore special min-difficulty testnet blocks
+        if (params.fPowAllowMinDifficultyBlocks &&
+            pindex->pprev &&
+            pindex->nTime > pindex->pprev->nTime + params.nPowTargetSpacing*6)
+        {
+            continue;
+        }
+        return pindex;
+    }
+    return nullptr;
 }
