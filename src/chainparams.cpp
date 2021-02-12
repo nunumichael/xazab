@@ -307,7 +307,7 @@ public:
         consensus.nPowTargetTimespan = 60; // Xazab: 1 minutes
         consensus.nPowTargetSpacing = 60; // Xazab: 1 minutes
         consensus.nAveragingInterval = 10; // 10 blocks
-        consensus.multiAlgoTargetSpacing = 90 * 3; // NUM_ALGOS * 90 seconds
+        consensus.multiAlgoTargetSpacing = 60 * 3; // NUM_ALGOS * 90 seconds
         consensus.nAveragingTargetTimespan = consensus.nAveragingInterval * consensus.multiAlgoTargetSpacing; // 10 * NUM_ALGOS * 90
         consensus.nMaxAdjustDown = 16; // 16% adjustment down
         consensus.nMaxAdjustUp = 8; // 8% adjustment up
@@ -317,6 +317,7 @@ public:
         consensus.nLocalDifficultyAdjustment = 4; //difficulty adjustment per algo
         consensus.fPowAllowMinDifficultyBlocks = false;
         consensus.fPowNoRetargeting = false;
+        consensus.diff1 = 10000;
         consensus.nPowKGWHeight = 5;
         consensus.nPowDGWHeight = 6;
         consensus.nRuleChangeActivationThreshold = 1916; // 95% of 2016

@@ -177,6 +177,7 @@ struct Params {
     int64_t nPowTargetTimespan;
     int nPowKGWHeight;
     int nPowDGWHeight;
+    int diff1;
     int64_t DifficultyAdjustmentInterval() const { return nPowTargetTimespan / nPowTargetSpacing; }
     int64_t nAveragingInterval;
     int64_t multiAlgoTargetSpacing;

@@ -1777,7 +1777,7 @@ bool AppInitMain()
     }
 
     // Algo
-    std::string strAlgo = GetArg("-algo", "scrypt");
+    std::string strAlgo = gArgs.GetArg("-algo", "scrypt");
     transform(strAlgo.begin(),strAlgo.end(),strAlgo.begin(),::tolower);
     if (strAlgo == "sha" || strAlgo == "sha256" || strAlgo == "sha256d")
         miningAlgo = ALGO_SHA256D;
@@ -1948,8 +1948,8 @@ bool AppInitMain()
                 // If we're not mid-reindex (based on disk + args), add a genesis block on disk
                 // (otherwise we use the one already on disk).
                 // This is called again in ThreadImport after the reindex completes.
-                if (!fReindex && !LoadGenesisBlock(chainparams)) {
-                    strLoadError = _("Error initializing block database");
+                  if (!fReindex && !LoadGenesisBlock(chainparams)) {
+                   strLoadError = _("Error initializing block database");
                     break;
                 }
 

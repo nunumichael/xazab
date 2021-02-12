@@ -15,7 +15,10 @@
 
 uint256 CBlockHeader::GetHash() const
 {
-    return SerializeHash(*this);
+    std::vector<unsigned char> vch(80);
+    CVectorWriter ss(SER_NETWORK, PROTOCOL_VERSION, vch, 0);
+    ss << *this;
+    return HashX11((const char *)vch.data(), (const char *)vch.data() + vch.size());
 }
 
 int CBlockHeader::GetAlgo() const
@@ -30,7 +33,8 @@ int CBlockHeader::GetAlgo() const
             return ALGO_X11;
 
     }
-    return ALGO_SCRYPT;
+//    return ALGO_SCRYPT;
+            return ALGO_X11;
 }
 
 uint256 CBlockHeader::GetPoWAlgoHash() const

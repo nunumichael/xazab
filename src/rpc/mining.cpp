@@ -224,26 +224,25 @@ UniValue getmininginfo(const JSONRPCRequest& request)
     LOCK(cs_main);
 
     UniValue obj(UniValue::VOBJ);
-    obj.pushKV("blocks",           (int)chainActive.Height());
-    obj.pushKV("currentblocksize", (uint64_t)nLastBlockSize);
-    obj.pushKV("currentblocktx",   (uint64_t)nLastBlockTx);
-    obj.pushKV("pow_algo_id",        miningAlgo);
-    obj.pushKV("pow_algo",           GetAlgoName(miningAlgo));
-    obj.pushKV("difficulty",       (double)GetDifficulty(chainActive.Tip(), miningAlgo));
-    obj.pushKV("difficulty_sha256d", (double)GetDifficulty(nullptr, ALGO_SHA256D));
-    obj.pushKV("difficulty_scrypt",  (double)GetDifficulty(nullptr, ALGO_SCRYPT));
-    obj.pushKV("difficulty_x11",     (double)GetDifficulty(nullptr, ALGO_X11));
-    obj.pushKV("networkhashps",    getnetworkhashps(request));
-    obj.pushKV("pooledtx",         (uint64_t)mempool.size());
-    obj.pushKV("chain",            Params().NetworkIDString());
+    obj.push_back(Pair("blocks",           (int)chainActive.Height()));
+    obj.push_back(Pair("currentblocksize", (uint64_t)nLastBlockSize));
+    obj.push_back(Pair("currentblocktx",   (uint64_t)nLastBlockTx));
+    obj.push_back(Pair("pow_algo_id",        miningAlgo));
+    obj.push_back(Pair("pow_algo",           GetAlgoName(miningAlgo)));
+    obj.push_back(Pair("difficulty",       (double)GetDifficulty(chainActive.Tip(), miningAlgo)));
+    obj.push_back(Pair("difficulty_sha256d", (double)GetDifficulty(nullptr, ALGO_SHA256D))); 
+    obj.push_back(Pair("difficulty_scrypt",  (double)GetDifficulty(nullptr, ALGO_SCRYPT)));
+    obj.push_back(Pair("difficulty_x11",     (double)GetDifficulty(nullptr, ALGO_X11)));
+    obj.push_back(Pair("networkhashps",    getnetworkhashps(request)));
+    obj.push_back(Pair("pooledtx",         (uint64_t)mempool.size()));
+    obj.push_back(Pair("chain",            Params().NetworkIDString()));
     if (IsDeprecatedRPCEnabled("getmininginfo")) {
-        obj.pushKV(("errors",       GetWarnings("statusbar")));
-    } else {
-        obj.pushKV(("warnings",     GetWarnings("statusbar")));
+     obj.push_back(Pair("errors",       GetWarnings("statusbar")));
+     } else {
+      obj.push_back(Pair("warnings",     GetWarnings("statusbar")));
     }
-    return obj;
-}
-
+       return obj;
+    }
 
 // NOTE: Unlike wallet RPC (which use BTC values), mining RPCs follow GBT (BIP 22) in using satoshi amounts
 UniValue prioritisetransaction(const JSONRPCRequest& request)

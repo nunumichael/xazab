@@ -129,11 +129,11 @@ arith_uint256 GetBlockProof(const CBlockIndex& block)
    int CURRENT_ALGOS;
     if (block.nHeight >= 100000)
     {
-    	CURRENT_ALGOS = NUM_ALGOS_NEW;
+    	CURRENT_ALGOS = NUM_ALGOS;
     }
     else
     {
-        CURRENT_ALGOS = NUM_ALGOS;
+        CURRENT_ALGOS = ALGO_X11;
     }
 
     for (int i = 0; i < NUM_ALGOS; i++)

@@ -12,9 +12,9 @@
 
 enum
 {
-    ALGO_SHA256D = 0,
+    ALGO_SHA256D = 2,
     ALGO_SCRYPT	 = 1,
-    ALGO_X11     = 2,
+    ALGO_X11     = 0,
 };
 
 const int NUM_ALGOS = 3;
